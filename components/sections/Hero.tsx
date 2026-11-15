@@ -50,7 +50,7 @@ export default function Hero() {
       <Shell className="relative">
         <div className="flex max-w-[620px] flex-col pb-10 pt-6 md:pt-16 lg:pb-[150px] lg:pt-[188px]">
           <div data-reveal="fade">
-            <Eyebrow>LAICOS Agricultural Marketplace</Eyebrow>
+            <Eyebrow compact>LAICOS Agricultural Marketplace</Eyebrow>
           </div>
           <h1
             className="mt-6 text-[40px] font-bold leading-[1.06] tracking-[-0.03em] text-ink sm:text-[54px] md:text-[68px]"

@@ -8,7 +8,7 @@ export default function Cart() {
     <section className="bg-paper pb-12 md:pb-[110px]">
       <Shell>
         <div className="md:pt-[56px]">
-          <div data-reveal="fade">
+          <div data-reveal="fade" className='pt-6'>
             <Eyebrow>Your Selection</Eyebrow>
           </div>
           <h2
