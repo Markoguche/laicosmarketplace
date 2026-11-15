@@ -1,0 +1,177 @@
+@import "tailwindcss";
+
+/* ─── LAICOS design tokens — sampled from the Figma design (design/*.png) ── */
+@theme {
+  --color-brand: #0a976b;        /* deep green: footer, summary panel, links */
+  --color-brand-deep: #087b57;
+  --color-brand-light: #1b9f76;  /* primary buttons */
+  --color-tint: #e9f5ef;         /* light green chips / steppers / icon squares */
+  --color-amber: #d29d41;        /* eyebrow dashes, "Limited" */
+  --color-danger: #cc4a4a;       /* "Out of stock" */
+  --color-ink: #141c17;          /* headings */
+  --color-body: #2a3a31;         /* body copy */
+  --color-muted: #6d7974;        /* secondary text */
+  --color-line: #e7ece8;         /* card borders */
+  --color-alt: #f6f8f6;          /* alternating section background */
+  --color-paper: #ffffff;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Lenis drives smooth scrolling; native CSS smooth is reserved for anchor jumps
+   when reduced motion is on (no Lenis). */
+body {
+  background: var(--color-paper);
+  color: var(--color-body);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+/* Native anchor jumps land below the sticky header when Lenis isn't active */
+section[id],
+main[id] {
+  scroll-margin-top: 76px;
+}
+@media (min-width: 768px) {
+  section[id],
+  main[id] {
+    scroll-margin-top: 106px;
+  }
+}
+
+/* ─── Lenis recommended styles ── */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+/* Scroll lock fallback while the mobile menu is open (works with or without Lenis) */
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
+}
+
+/* ─── Marquees: slow, continuous auto-scroll, loop seamlessly (50% translate) ── */
+@keyframes laicos-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.cat-marquee-track {
+  animation: laicos-marquee 62s linear infinite;
+  will-change: transform;
+}
+.feat-marquee-track {
+  animation: laicos-marquee 46s linear infinite;
+  will-change: transform;
+}
+.cat-marquee:hover .cat-marquee-track,
+.cat-marquee:focus-within .cat-marquee-track,
+.feat-marquee:hover .feat-marquee-track,
+.feat-marquee:focus-within .feat-marquee-track {
+  animation-play-state: paused;
+}
+
+/* ─── Ambient motion: slow float, gradient pan, flowing dotted connectors ── */
+@keyframes laicos-float {
+  from { transform: translateY(-6px); }
+  to   { transform: translateY(8px); }
+}
+.laicos-float {
+  animation: laicos-float 7s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.laicos-float-slow {
+  animation: laicos-float 9.5s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes laicos-pan {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+.laicos-pan {
+  background-size: 220% 220%;
+  animation: laicos-pan 20s ease-in-out infinite alternate;
+}
+
+@keyframes laicos-dot-flow {
+  to { stroke-dashoffset: -240; }
+}
+.laicos-dots path {
+  animation: laicos-dot-flow 34s linear infinite;
+}
+.laicos-dots path:nth-of-type(2) {
+  animation-delay: -11s;
+}
+.laicos-dots path:nth-of-type(3) {
+  animation-delay: -22s;
+}
+
+/* ─── Scroll reveals (GSAP-driven; content stays visible without JS) ──
+   Variants: "up" (default), "fade", "left", "right", "scale" */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(36px);
+}
+html.js [data-reveal='fade'] {
+  transform: none;
+}
+html.js [data-reveal='left'] {
+  transform: translateX(-48px);
+}
+html.js [data-reveal='right'] {
+  transform: translateX(48px);
+}
+html.js [data-reveal='scale'] {
+  transform: scale(0.93);
+}
+html.js.reveal-done [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+/* Split headings: hidden until words are wrapped in overflow masks */
+html.js [data-split] {
+  opacity: 0;
+}
+html.js [data-split].split-ready {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  html.js [data-reveal],
+  html.js [data-split] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .cat-marquee-track,
+  .feat-marquee-track,
+  .laicos-float,
+  .laicos-float-slow,
+  .laicos-pan,
+  .laicos-dots path {
+    animation: none !important;
+  }
+  /* Degraded marquees stay browsable by hand */
+  .cat-marquee,
+  .feat-marquee {
+    overflow-x: auto;
+  }
+}
