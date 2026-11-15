@@ -1,11 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Menu, X } from 'lucide-react';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'motion/react';
 import { NAV_LINKS } from '@/lib/data';
 import { Shell } from '@/components/ui/Section';
+import { lenisStore } from '@/components/providers/SmoothScroll';
+
+// How long the header stays pinned after the menu closes: the anchor glide
+// lasts ~1.6s and the burger must remain in place until it finishes.
+const MENU_GRACE_MS = 2000;
+
+// Shared click handler for menu links: resume Lenis before the document-level
+// anchor handler fires, otherwise its scrollTo is ignored while stopped.
+const closeMenuViaLink =
+  (setMenuOpen: (v: boolean) => void) => () => {
+    lenisStore.current?.start();
+    setMenuOpen(false);
+  };
 
 // Sticky header: glides out of view scrolling down, returns scrolling up, gains a
 // soft shadow once the page moves. Mobile gets an animated dropdown menu.
@@ -13,18 +26,34 @@ export default function Header() {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const closedAtRef = useRef(0);
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, 'change', (y) => {
     const prev = scrollY.getPrevious() ?? 0;
     setScrolled(y > 8);
-    setHidden(menuOpen ? false : y > prev && y > 160);
+    // Stay pinned while the menu is open and through the post-close glide so
+    // the burger doesn't slide away from under the user's finger.
+    const menuGrace = menuOpen || Date.now() - closedAtRef.current < MENU_GRACE_MS;
+    setHidden(menuGrace ? false : y > prev && y > 160);
   });
 
-  // Lock page scrolling behind the open menu (works with or without Lenis).
+  // Lock page scrolling behind the open menu: pause Lenis (blocks wheel and
+  // touch in JS on every device) and keep the CSS class as the fallback for
+  // when Lenis is off. The CSS lock lives on <body> only — toggling overflow
+  // on <html> trips an iOS Safari quirk that leaves the page unscrollable
+  // after the lock is lifted.
   useEffect(() => {
     document.documentElement.classList.toggle('menu-open', menuOpen);
-    return () => document.documentElement.classList.remove('menu-open');
+    if (menuOpen) lenisStore.current?.stop();
+    else {
+      lenisStore.current?.start();
+      closedAtRef.current = Date.now();
+    }
+    return () => {
+      document.documentElement.classList.remove('menu-open');
+      lenisStore.current?.start();
+    };
   }, [menuOpen]);
 
   // Close on Escape for keyboard users.
@@ -113,7 +142,7 @@ export default function Header() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, transition: { duration: 0.15 } }}
                   transition={{ delay: 0.1 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={closeMenuViaLink(setMenuOpen)}
                   className="flex items-center justify-between border-b border-line/70 py-4 text-[16px] font-medium text-body transition-colors duration-300 last:border-none hover:text-brand"
                 >
                   {l.label}
@@ -126,7 +155,7 @@ export default function Header() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, transition: { duration: 0.15 } }}
                 transition={{ delay: 0.1 + NAV_LINKS.length * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenuViaLink(setMenuOpen)}
                 className="mt-5 flex h-12 items-center justify-center rounded-full bg-gradient-to-b from-[#2aa67d] to-[#14996d] text-[15px] font-semibold text-white active:scale-[0.98]"
               >
                 Download for Free

@@ -56,11 +56,12 @@ html.lenis body {
 .lenis.lenis-smooth [data-lenis-prevent] {
   overscroll-behavior: contain;
 }
-.lenis.lenis-stopped {
+.lenis.lenis-stopped body {
   overflow: hidden;
 }
-/* Scroll lock fallback while the mobile menu is open (works with or without Lenis) */
-html.menu-open,
+/* Scroll lock fallback while the mobile menu is open (Lenis handles the rest).
+   Locked on <body> only — toggling overflow on <html> trips an iOS Safari
+   quirk that leaves the page unscrollable after the lock is lifted. */
 html.menu-open body {
   overflow: hidden;
 }
