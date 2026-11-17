@@ -31,24 +31,25 @@ function VerifiedBadge({ compact = false }: { compact?: boolean }) {
 export default function Hero() {
   return (
     <section className="relative overflow-hidden bg-[#f4fcf4]">
-      {/* farm photo, right-anchored, bleeding to the viewport edge (design slot 773x659 at x669,y132) */}
-      <div className="absolute right-0 top-[42px] hidden w-[53.6%] max-w-[773px] lg:block">
-        <div className="relative aspect-[773/659] w-full">
-          {/* gentle scrubbed parallax; the slight scale keeps the image edge-bleed clean */}
-          <Image
-            src="/images/hero-farm.jpg"
-            alt="Terraced farm fields"
-            fill
-            priority
-            sizes="(max-width: 1440px) 54vw, 773px"
-            data-parallax="5"
-            className="scale-[1.08] rounded-l-3xl object-cover object-[50%_35%]"
-          />
-          <VerifiedBadge />
-        </div>
-      </div>
       <Shell className="relative">
-        <div className="flex max-w-[620px] flex-col pb-10 pt-6 md:pt-16 lg:pb-[150px] lg:pt-[188px]">
+        {/* farm photo, right column aligned to the shell gutter so it never bleeds off-screen
+            (design slot 773x659; 664px = gutters 80 + copy column 560 + 24px clearance) */}
+        <div className="absolute right-10 top-[42px] hidden w-[calc(100%_-_664px)] max-w-[696px] lg:block">
+          <div className="relative aspect-[773/659] w-full overflow-hidden rounded-3xl">
+            {/* gentle scrubbed parallax; the scale keeps drift (±5%) from exposing wrapper edges */}
+            <Image
+              src="/images/hero-farm.jpg"
+              alt="Terraced farm fields"
+              fill
+              priority
+              sizes="(min-width: 1024px) min(calc(100vw - 664px), 696px)"
+              data-parallax="5"
+              className="scale-[1.12] object-cover object-[50%_35%]"
+            />
+            <VerifiedBadge />
+          </div>
+        </div>
+        <div className="flex max-w-[620px] flex-col pb-10 pt-6 md:pt-16 lg:max-w-[560px] lg:pb-[150px] lg:pt-[188px]">
           <div data-reveal="fade">
             <Eyebrow compact>LAICOS Agricultural Marketplace</Eyebrow>
           </div>
